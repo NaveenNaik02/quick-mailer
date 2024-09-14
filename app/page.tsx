@@ -11,7 +11,6 @@ import { getSheetData } from "@/service/google-spreadsheet";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
 
-// eslint-disable-next-line
 type googleSheetDataType = {
   data: any[][] | null | undefined;
 };
