@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
@@ -12,6 +11,7 @@ import { getSheetData } from "@/service/google-spreadsheet";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
 
+// eslint-disable-next-line
 type googleSheetDataType = {
   data: any[][] | null | undefined;
 };
@@ -44,15 +44,12 @@ export default function Home() {
         method: "POST",
         body: JSON.stringify({ sheetData: googleSheetData?.data }),
       });
-      const result = await response.json();
       setIsMailSending(false);
     } catch (error) {
       setIsMailSending(false);
       console.error("Error sending email:", error);
     }
   };
-
-  console.log(isDataLoaded, "isDataLoaded");
 
   return (
     <div className="flex items-center justify-center h-screen">

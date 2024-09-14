@@ -7,6 +7,7 @@ import {
 } from "@/Styles/tablesStyle";
 import React from "react";
 
+// eslint-disable-next-line
 interface EmailTemplateProps {
   sheetData: any[][] | null | undefined;
 }
