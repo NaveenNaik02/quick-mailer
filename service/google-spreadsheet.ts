@@ -9,7 +9,7 @@ export async function getSheetData() {
         type: "service_account",
         project_id: "lyrical-epigram-435516-c5",
         private_key_id: "1a512d9cde4842432bdca08b66d6929ae4ce730f",
-        private_key: process.env.GOOGLE_PRIVATE_KEY,
+        private_key: process.env.GOOGLE_PRIVATE_KEY!.replace(/\\n/g, "\n"),
         client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
         universe_domain: "googleapis.com",
       },
