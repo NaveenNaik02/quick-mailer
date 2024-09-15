@@ -20,13 +20,6 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-body.bg-custom {
-  background-image: url("/background.svg");
-  background-size: cover; /* Adjust as needed: 'cover', 'contain', 'auto', etc. */
-  background-repeat: no-repeat;
-  background-position: center; /* Adjust as needed: 'center', 'top', 'bottom', etc. */
-}
-
 @layer utilities {
   .text-balance {
     text-wrap: balance;

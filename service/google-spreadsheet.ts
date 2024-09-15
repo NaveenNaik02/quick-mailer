@@ -21,15 +21,11 @@ export async function getSheetData() {
 
     const glSheets = google.sheets({ version: "v4", auth: glAuth });
 
-    console.log(process.env.GOOGLE_SHEET_ID, "sheet id");
-    console.log(glSheets, "sheets");
-
     const data = await glSheets.spreadsheets.values.get({
       spreadsheetId: process.env.GOOGLE_SHEET_ID,
       range: "SLE details!B:J",
     });
 
-    console.log(data, "response");
     return { data: data.data.values };
   } catch (error) {
     console.log(error, "error");

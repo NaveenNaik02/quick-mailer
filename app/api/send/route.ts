@@ -1,26 +1,66 @@
 "use server";
-import { EmailTemplate } from "@/components/email-template";
-import { Resend } from "resend";
+import { generateEmailTemplate } from "@/components/email-template";
+import { google } from "googleapis";
+import { createTransport } from "nodemailer";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+type GOOGLE_MAIL_SERVICE_KEYS =
+  | "clientId"
+  | "clientSecret"
+  | "refreshToken"
+  | "redirectUri"
+  | "email";
+
+const googleEmailConfig: Record<GOOGLE_MAIL_SERVICE_KEYS, string> = {
+  clientId: process.env.GOOGLE_CLIENT_ID || "",
+  clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+  refreshToken: process.env.GOOGLE_REFRESH_TOKEN || "",
+  redirectUri: process.env.GOOGLE_REDIRECT_URI || "",
+  email: process.env.GOOGLE_EMAIL || "",
+};
+
+async function getOAuth2AccessToken() {
+  const OAuth2 = google.auth.OAuth2;
+  const id = googleEmailConfig.clientId;
+  const secret = googleEmailConfig.clientSecret;
+  const myOAuth2Client = new OAuth2(id, secret);
+
+  myOAuth2Client.setCredentials({
+    refresh_token: googleEmailConfig.refreshToken,
+  });
+
+  const accessToken = await myOAuth2Client.getAccessToken();
+  return accessToken;
+}
 
 export async function POST(req: Request) {
-  console.log(process.env.RESEND_API_KEY, "RESEND_API_KEY");
-  console.log(resend, "resend");
   try {
     const body = await req.json();
-    const { data, error } = await resend.emails.send({
-      from: "Acme <onboarding@resend.dev>",
-      to: ["naveennaik0202@gmail.com"],
-      subject: "Hello world",
-      react: EmailTemplate(body),
-    });
+    const html = generateEmailTemplate(body.sheetData);
+    const accessToken = await getOAuth2AccessToken();
 
-    if (error) {
-      console.log(error);
-      return Response.json({ error }, { status: 500 });
-    }
+    const transportOptions: any = {
+      service: "gmail",
+      auth: {
+        type: "OAuth2",
+        user: googleEmailConfig.email,
+        clientId: googleEmailConfig.clientId,
+        refreshToken: googleEmailConfig.refreshToken,
+        accessToken: accessToken.token,
+      },
+    };
+    const smtpTransport = createTransport(transportOptions);
 
+    const mailOptions = {
+      from: {
+        name: "Your application name",
+        address: googleEmailConfig.email,
+      },
+      to: "naveennaik0202@gmail.com",
+      subject:
+        "Attention - Shelf Life Expiry Details for the Next Three Months",
+      html: html,
+    };
+    const data = await smtpTransport.sendMail(mailOptions);
     return Response.json(data);
   } catch (error) {
     console.log(error);
