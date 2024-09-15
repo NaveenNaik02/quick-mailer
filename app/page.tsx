@@ -16,7 +16,9 @@ type googleSheetDataType = {
 };
 
 export default function Home() {
-  const [googleSheetData, setGoogleSheetData] = useState<googleSheetDataType>({
+  const [googleSheetData, setGoogleSheetData] = useState<
+    googleSheetDataType | undefined
+  >({
     data: null,
   });
   const [isDataLoaded, setIsDataLoaded] = useState(false);
