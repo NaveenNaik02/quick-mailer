@@ -33,6 +33,7 @@ async function getOAuth2AccessToken() {
 }
 
 export async function POST(req: Request) {
+  console.log(googleEmailConfig, "googleEmailConfig");
   try {
     const body = await req.json();
     const html = generateEmailTemplate(body.sheetData);
