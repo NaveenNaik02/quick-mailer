@@ -2,8 +2,6 @@
 import { google } from "googleapis";
 
 export async function getSheetData() {
-  console.log(process.env.GOOGLE_PRIVATE_KEY, "private key");
-  console.log(process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL, "email");
   const glAuth = await google.auth.getClient({
     projectId: "lyrical-epigram-435516-c5",
     credentials: {
@@ -17,16 +15,15 @@ export async function getSheetData() {
     scopes: ["https://www.googleapis.com/auth/spreadsheets"],
   });
 
-  console.log(glAuth, "auth info");
-
   const glSheets = google.sheets({ version: "v4", auth: glAuth });
 
-  console.log(glSheets, "sheet info");
+  console.log(process.env.GOOGLE_SHEET_ID, "sheet id");
 
   const data = await glSheets.spreadsheets.values.get({
     spreadsheetId: process.env.GOOGLE_SHEET_ID,
     range: "SLE details!B:J",
   });
 
+  console.log(data, "response");
   return { data: data.data.values };
 }
