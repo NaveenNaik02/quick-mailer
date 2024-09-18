@@ -1,9 +1,8 @@
-"use server";
 import { google } from "googleapis";
 
-export async function getSheetData() {
+export async function GET(req: Request) {
   try {
-    const glAuth = await google.auth.getClient({
+    const getAuth = await google.auth.getClient({
       projectId: "lyrical-epigram-435516-c5",
       credentials: {
         type: "service_account",
@@ -19,15 +18,15 @@ export async function getSheetData() {
       scopes: ["https://www.googleapis.com/auth/spreadsheets"],
     });
 
-    const glSheets = google.sheets({ version: "v4", auth: glAuth });
-
+    const glSheets = google.sheets({ version: "v4", auth: getAuth });
     const data = await glSheets.spreadsheets.values.get({
       spreadsheetId: process.env.GOOGLE_SHEET_ID,
       range: "SLE details!B:J",
     });
 
-    return { data: data.data.values };
+    return Response.json({ data: data.data.values }, { status: 200 });
   } catch (error) {
-    console.log(error, "error");
+    console.log(error);
+    Response.json({ error }, { status: 500 });
   }
 }

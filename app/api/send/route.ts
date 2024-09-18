@@ -33,7 +33,6 @@ async function getOAuth2AccessToken() {
 }
 
 export async function POST(req: Request) {
-  console.log(googleEmailConfig, "googleEmailConfig");
   try {
     const body = await req.json();
     const html = generateEmailTemplate(body.sheetData);
@@ -53,10 +52,10 @@ export async function POST(req: Request) {
 
     const mailOptions = {
       from: {
-        name: "Your application name",
+        name: "Naveen Naik",
         address: googleEmailConfig.email,
       },
-      to: "naveennaik0202@gmail.com",
+      to: ["naveennaik0202@gmail.com"],
       subject:
         "Attention - Shelf Life Expiry Details for the Next Three Months",
       html: html,

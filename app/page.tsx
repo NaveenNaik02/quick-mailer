@@ -1,5 +1,7 @@
 "use client";
-import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
+
 import {
   Card,
   CardContent,
@@ -7,9 +9,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { getSheetData } from "@/service/google-spreadsheet";
-import { Loader2 } from "lucide-react";
-import { useState } from "react";
+import { showToastError, showToastSuccess } from "@/utils/custom-toaster";
+import LoadingButton from "@/utils/LoadingButton";
 
 type googleSheetDataType = {
   data: any[][] | null | undefined;
@@ -22,33 +23,38 @@ export default function Home() {
     data: null,
   });
   const [isDataLoaded, setIsDataLoaded] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isMailSending, setIsMailSending] = useState(false);
+  const [isGettingSheetData, setIsGettingSheetData] = useState(false);
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
+  useToast();
+
   const handleOnGetSheetDataClick = async () => {
+    setIsGettingSheetData(true);
     try {
-      setIsLoading(true);
-      const response = await getSheetData();
-      setGoogleSheetData(response);
+      const response = await fetch("/api/google-sheet");
+      const googleSheet = await response.json();
+      setGoogleSheetData(googleSheet);
       setIsDataLoaded(true);
-      setIsLoading(false);
     } catch (error) {
-      setIsLoading(false);
-      setIsDataLoaded(false);
-      console.log(error, "you cant...!");
+      showToastError({});
+      console.error("Error fetching Google sheet data:", error);
+    } finally {
+      setIsGettingSheetData(false);
     }
   };
 
   const handleSendEmail = async () => {
+    setIsSendingEmail(true);
     try {
-      setIsMailSending(true);
-      const response = await fetch("/api/send", {
+      await fetch("/api/send", {
         method: "POST",
         body: JSON.stringify({ sheetData: googleSheetData?.data }),
       });
-      setIsMailSending(false);
+      showToastSuccess({ description: "Your mail has been sent..!" });
     } catch (error) {
-      setIsMailSending(false);
+      showToastError({});
       console.error("Error sending email:", error);
+    } finally {
+      setIsSendingEmail(false);
     }
   };
 
@@ -61,26 +67,19 @@ export default function Home() {
           </CardTitle>
         </CardHeader>
         <CardContent className="flex gap-20">
-          <Button onClick={handleOnGetSheetDataClick}>
-            {isLoading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                please wait
-              </>
-            ) : (
-              <>Import google sheet</>
-            )}
-          </Button>
-          <Button disabled={!isDataLoaded} onClick={handleSendEmail}>
-            {isMailSending ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                sending..!
-              </>
-            ) : (
-              <>Send a mail</>
-            )}
-          </Button>
+          <LoadingButton
+            onClick={handleOnGetSheetDataClick}
+            isLoading={isGettingSheetData}
+          >
+            Import google sheet
+          </LoadingButton>
+          <LoadingButton
+            onClick={handleSendEmail}
+            isLoading={isSendingEmail}
+            isDisabled={!isDataLoaded}
+          >
+            Send a mail
+          </LoadingButton>
         </CardContent>
         <CardFooter className="text-white text-sm">
           {!isDataLoaded ? (
